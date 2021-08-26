@@ -13,18 +13,21 @@ import java.util.List;
 @Repository
 public class UserDaoImp implements UserDao {
 
+    private final SessionFactory sessionFactory;
     @Autowired
-    private SessionFactory sessionFactory;
+    public UserDaoImp(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
 
     @Override
     public void add(User user) {
-        sessionFactory.getCurrentSession().save(user);
+        sessionFactory.openSession().save(user);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<User> listUsers() {
-        TypedQuery<User> query = sessionFactory.getCurrentSession().createQuery("from User");
+        TypedQuery<User> query = sessionFactory.openSession().createQuery("from User");
         return query.getResultList();
     }
 
@@ -32,7 +35,7 @@ public class UserDaoImp implements UserDao {
     public User getUserByCar(String model, int series) {
         String hql = "FROM User us LEFT JOIN FETCH us.userCar WHERE us.userCar.model =:model AND us.userCar.series =:series";
         try {
-            TypedQuery<User> query = sessionFactory.getCurrentSession().createQuery(hql);
+            TypedQuery<User> query = sessionFactory.openSession().createQuery(hql);
             query.setParameter("model", model);
             query.setParameter("series", series);
             return query.getSingleResult();
